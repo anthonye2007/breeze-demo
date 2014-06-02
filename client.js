@@ -125,8 +125,19 @@ printCustomers = function(path) {
  ***** Runner *****
  */
 log("Starting", 1);
-configuration();
 
-//printAllEntitySetNames();
-//printCategories();
-printCustomers();
+//configuration();
+
+breeze.config.initializeAdapterInstance('dataService', 'odata', true);
+
+ var ds = new breeze.DataService({
+    serviceName: serviceRoot, // the URL endpoint
+    hasServerMetadata: true, // the service won't give us metadata
+    useJsonp: false           // request data using the JSONP protocol
+    //,jsonResultsAdapter: jsonResultsAdapter
+});
+ 
+var manager = new breeze.EntityManager({dataService: ds});
+
+var query = breeze.EntityQuery.from("Customers");
+manager.executeQuery(query).then(success).fail(error);
