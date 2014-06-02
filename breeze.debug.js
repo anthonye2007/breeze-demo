@@ -15192,7 +15192,7 @@ breeze.SaveOptions= SaveOptions;
 
     fn.initialize = function () {
         OData = core.requireLib("OData", "Needed to support remote OData services");
-        OData.jsonHandler.recognizeDates = true;
+        OData.json.jsonHandler.recognizeDates = true;
     };
     
     
@@ -15203,7 +15203,7 @@ breeze.SaveOptions= SaveOptions;
         
         OData.read({
                 requestUri: url,
-                headers: { "DataServiceVersion": "2.0" }
+                headers: { "DataServiceVersion": "4.0" }
             },
             function (data, response) {
                 var inlineCount;
@@ -15283,7 +15283,7 @@ breeze.SaveOptions= SaveOptions;
         var contentKeys = saveContext.contentKeys;
         var that = this;
         OData.request({
-            headers : { "DataServiceVersion": "2.0" } ,
+            headers : { "DataServiceVersion": "4.0" } ,
             requestUri: url,
             method: "POST",
             data: requestData
@@ -15382,7 +15382,7 @@ breeze.SaveOptions= SaveOptions;
         saveBundle.entities.forEach(function (entity) {
             var aspect = entity.entityAspect;
             id = id + 1; // we are deliberately skipping id=0 because Content-ID = 0 seems to be ignored.
-            var request = { headers: { "Content-ID": id, "DataServiceVersion": "2.0" } };
+            var request = { headers: { "Content-ID": id, "DataServiceVersion": "4.0" } };
             contentKeys[id] = entity;
             if (aspect.entityState.isAdded()) {
                 request.requestUri = routePrefix + entity.entityType.defaultResourceName;

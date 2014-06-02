@@ -8821,9 +8821,9 @@ var writeHtmlToIFrame = function (iframe, html) {
 exports.defaultHttpClient = {
     callbackParameterName: "$callback",
 
-    formatQueryString: "$format=json",
+    formatQueryString: "$format=xml",
 
-    enableJsonpCallback: false,
+    enableJsonpCallback: false, // this was initially false
 
     request: function (request, success, error) {
         /// <summary>Performs a network request.</summary>
@@ -8885,6 +8885,17 @@ exports.defaultHttpClient = {
                 var headers = [];
                 readResponseHeaders(xhr, headers);
 
+                if (statusCode === 0) {
+                    statusCode = 501;
+                    console.log('statusCode was 0');
+                    console.log(xhr);
+
+                    xhr.open("GET", "http://services.odata.org/V4/Northwind/Northwind.svc/$metadata", false);
+                    xhr.send(); // trying to get around the OPTIONS preflight from CORS
+
+                    return;
+                }
+
                 var response = { requestUri: url, statusCode: statusCode, statusText: statusText, headers: headers, body: xhr.responseText };
 
                 done = true;
@@ -8896,6 +8907,7 @@ exports.defaultHttpClient = {
                 }
             };
 
+            //xhr.open("GET", "http://services.odata.org/V4/Northwind/Northwind.svc/$metadata", false);
             xhr.open(request.method || "GET", url, true, request.user, request.password);
 
             // Set the name/value pairs.
@@ -8939,6 +8951,7 @@ exports.defaultHttpClient = {
 
                     var headers;
                     if (!formatQueryString || formatQueryString == "$format=json") {
+                        //headers = { "Content-Type": "application/json;odata.metadata=minimal", "OData-Version": "4.0" };
                         headers = { "Content-Type": "application/json;odata.metadata=minimal", "OData-Version": "4.0" };
                     } else {
                         // the formatQueryString should be in the format of "$format=xxx", xxx should be one of the application/json;odata.metadata=minimal(none or full)
