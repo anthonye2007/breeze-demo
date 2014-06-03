@@ -130,39 +130,27 @@ log("Starting", 1);
 
 breeze.config.initializeAdapterInstance('dataService', 'odata', true);
 
-var ajaxAdapter = breeze.config.getAdapterInstance('ajax');
- 
-ajaxAdapter.defaultSettings = {
-   beforeSend: function(xhr, settings) {
-      xhr.setRequestHeader("x-Test-Before-Send-Header", "foo");
-      console.log('set headers');
-   }
-};
-
 var ds = new breeze.DataService({
   serviceName: serviceRoot, // the URL endpoint
   hasServerMetadata: true,
-  useJsonp: false           // request data using the JSONP protocol
+  useJsonp: true           // request data using the JSONP protocol
   //,jsonResultsAdapter: jsonResultsAdapter
 });
  
 var manager = new breeze.EntityManager({dataService: ds});
-//manager.fetchMetadata(ds, success, error);
 
 manager.fetchMetadata()
   .then(function() {
-    var metadataStore = em1.metadataStore;
-    // do something with the metadata
-    log('success!')
+    var metadataStore = manager.metadataStore;
+    log('metadata success!')
     log(metadataStore);
   })
   .fail(function(exception) {
-    // handle exception here
-    log('failed...');
+    log('metadata error: ' + exception.message);
     log(exception);
   });
 
-var query = breeze.EntityQuery.from("Customers");
-/*manager.executeQuery(query)
+/*var query = breeze.EntityQuery.from("Customers");
+manager.executeQuery(query)
   .then(success)
   .fail(error);*/

@@ -6807,7 +6807,7 @@ var CsdlMetadataParser = (function () {
             });
         }
 
-        var keyNamesOnServer = csdlEntityType.key ? __toArray(csdlEntityType.key.propertyRef).map(__pluck("name")) : [];
+        var keyNamesOnServer = csdlEntityType.key ? __toArray(csdlEntityType.key[0].propertyRef).map(__pluck("name")) : [];
         keyNamesOnServer = baseKeyNamesOnServer.concat(keyNamesOnServer);
 
         __toArray(csdlEntityType.property).forEach(function (prop) {
@@ -6925,6 +6925,10 @@ var CsdlMetadataParser = (function () {
 
     function parseCsdlNavProperty(entityType, csdlProperty, schema) {
         var association = getAssociation(csdlProperty, schema);
+        if (!association) {
+            return null;
+        }
+
         var toEnd = __arrayFirst(association.end, function (assocEnd) {
             return assocEnd.role === csdlProperty.toRole;
         });
@@ -7035,6 +7039,10 @@ var CsdlMetadataParser = (function () {
     //      -> association
 
     function getAssociation(csdlNavProperty, schema) {
+        if (!csdlNavProperty.relationship)  {
+            return null;
+        }
+
         var assocName = parseTypeName(csdlNavProperty.relationship, schema).shortTypeName;
         var assocs = schema.association;
         if (!assocs) return null;
