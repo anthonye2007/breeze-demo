@@ -6208,7 +6208,11 @@ var MetadataStore = (function () {
         this._deferredTypes = {};
         var json = (typeof (exportedMetadata) === "string") ? JSON.parse(exportedMetadata) : exportedMetadata;
 
+        // remove weird schema from Northwind
         if (json.schema) {
+            if (json.schema.length > 1) {
+                json.schema.pop();
+            }
             return CsdlMetadataParser.parse(this, json.schema, json.altMetadata);
         } 
 

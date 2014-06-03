@@ -38,87 +38,30 @@ success = function(response) {
 }
 
 error = function(error) {
-  log("Error...")
+  log("Error: " + error.message);
   log(error);
 }
 
-printNames = function(response) {
-  var entitySetCollection = response.value.results;
-
-  for (var i = 0; i < entitySetCollection.length; i++) {
-    var entitySet = entitySetCollection[i];
-    log(entitySet.name);
-  }
-
-  newline();
+execute = function(query) {
+  manager.executeQuery(query)
+	  .then(function(results) {
+	  	log('query was successful!');
+	  	log(results);
+	  })
+	  .catch(function(error) {
+	  	log('query error: ' + error.message);
+	  	log(error);
+	  });
 }
 
-printEachCategory = function(response) {
-  var categories = response.value.results;
-
-  for (var i = 0; i < categories.length; i++) {
-    log(categories[i].CategoryName);
-  }
+enableJson = function() {
+	odataNet.defaultHttpClient.enableJsonpCallback = true;
+	odataNet.defaultHttpClient.formatQueryString = "$format=json";
 }
 
-handleCustomerSubset = function(response) {
-  var customers = response.value.results;
-
-  for (var i = 0; i < customers.length; i++) {
-    log(customers[i].CustomerID);
-  }
-
-  var pathForNextCustomer = response.__next;
-  if (pathForNextCustomer == null) {
-    log('Got all customers');
-  } else {
-    printCustomers(pathForNextCustomer);
-  }
-}
-
-/*
- ***** Low level API *****
- */
-
- read = function(path, callback) {
-  if (path != null && path.charAt(0)) {
-    path = '/' + path;
-  }
-
-  var completeUrl = serviceRoot + path;
-  OData.read(completeUrl, callback);
-}
-
-readEntitySet = function(entitySetName, callback) {
-  read(entitySetName, callback);
-}
-
-getEntitySets = function(callback) {
-  read('', callback);
-}
-
-getCategories = function(callback) {
-  readEntitySet('Categories', callback);
-}
-
-/*
- ***** High level API *****
- */
-
-printAllEntitySetNames = function() {
-  log("Entity sets:")
-  getEntitySets(printNames);
-}
-
-printCategories = function() {
-  log("Categories:");
-  getCategories(printEachCategory);
-}
-
-printCustomers = function(path) {
-  path = path || 'Customers';
-
-  readEntitySet(path, handleCustomerSubset);
+disableJson = function() {
+	odataNet.defaultHttpClient.enableJsonpCallback = false;
+	odataNet.defaultHttpClient.formatQueryString = "$format=xml";
 }
 
 /*
@@ -126,11 +69,13 @@ printCustomers = function(path) {
  */
 log("Starting", 1);
 
-//configuration();
+disableJson();
 
 breeze.config.initializeAdapterInstance('dataService', 'odata', true);
+//breeze.config.initializeAdapterInstance('dataService', 'webApiOData', true);
 
 var ds = new breeze.DataService({
+  //serviceName: "http://localhost:55802/odata",
   serviceName: serviceRoot, // the URL endpoint
   hasServerMetadata: true,
   useJsonp: true           // request data using the JSONP protocol
@@ -138,8 +83,9 @@ var ds = new breeze.DataService({
 });
  
 var manager = new breeze.EntityManager({dataService: ds});
+log("Service: " + manager.serviceName);
 
-manager.fetchMetadata()
+/*manager.fetchMetadata()
   .then(function() {
     var metadataStore = manager.metadataStore;
     log('metadata success!')
@@ -148,9 +94,9 @@ manager.fetchMetadata()
   .fail(function(exception) {
     log('metadata error: ' + exception.message);
     log(exception);
-  });
+  });*/
 
-/*var query = breeze.EntityQuery.from("Customers");
-manager.executeQuery(query)
-  .then(success)
-  .fail(error);*/
+//enableJson();
+
+var query = breeze.EntityQuery.from("Orders").take(5);
+execute(query);

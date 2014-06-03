@@ -8887,8 +8887,7 @@ exports.defaultHttpClient = {
 
                 if (statusCode === 0) {
                     statusCode = 501;
-                    console.log('statusCode was 0');
-                    console.log(xhr);
+                    console.log("HTTP CORS OPTIONS not implemented, continuing with GET");
 
                     xhr.open("GET", "http://services.odata.org/V4/Northwind/Northwind.svc/$metadata", false);
                     xhr.send(); // trying to get around the OPTIONS preflight from CORS
