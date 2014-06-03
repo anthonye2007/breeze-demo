@@ -62,7 +62,7 @@ gotFirstFiveOrders = function(response) {
 
 	var results = response.results;
 	for (var i = 0; i < results.length; i++) {
-		log(results[i].CustomerID);
+		log(results[i]);
 	}
 }
 
@@ -75,6 +75,24 @@ getFirstFiveOrders = function() {
 
 	var query = breeze.EntityQuery.from("Orders").take(5);
 	execute(query, gotFirstFiveOrders);
+}
+
+getOrderExpandedWithCustomer = function() {
+	enableJson();
+
+	var query = breeze.EntityQuery.from("Orders").take(1).expand("Customer");
+	execute(query, function(response) {
+		log('\nOrder with Customer:');
+
+		var results = response.results;
+		for (var i = 0; i < results.length; i++) {
+			var result = results[i];
+			var orderID = result.OrderID;
+			var name = result.Customer.ContactName;
+
+			log(orderID + ": " + name);
+		}
+	});
 }
 
 /*
@@ -91,5 +109,9 @@ var ds = new breeze.DataService({
 var manager = new breeze.EntityManager({dataService: ds});
 log("Service: " + manager.serviceName);
 
+// Need one query to get the metadata in xml format. Since the query is executed in xml we expect it to fail.
+// Then we change to JSON and re-execute the query and expect it to succeed.
 var query = breeze.EntityQuery.from("Orders").take(5);
 execute(query, gotFirstFiveOrders, getFirstFiveOrders);
+
+setTimeout(getOrderExpandedWithCustomer, 1000);
