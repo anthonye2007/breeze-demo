@@ -40,7 +40,9 @@ error = function(error) {
 
 execute = function(query, successCallback, errorCallback) {
   manager.executeQuery(query)
-		.then(successCallback)
+		.then(function(response) {
+			successCallback(response);
+		})
 		.catch(function(error) {
 			log('query error: ' + error.message);
 			errorCallback();
@@ -57,8 +59,8 @@ disableJson = function() {
 	odataNet.defaultHttpClient.formatQueryString = "$format=xml";
 }
 
-gotFirstFiveOrders = function(response) {
-	log('\nFirst five Orders:');
+gotOrders = function(response) {
+	log('\nOrders:');
 
 	var results = response.results;
 	for (var i = 0; i < results.length; i++) {
@@ -70,11 +72,19 @@ gotFirstFiveOrders = function(response) {
  ***** API *****
  */
 
-getFirstFiveOrders = function() {
+getFirstFiveOrders = function(callback) {
 	enableJson();
 
 	var query = breeze.EntityQuery.from("Orders").take(5);
-	execute(query, gotFirstFiveOrders);
+	execute(query, function(response) {
+		log('\nFirst five Orders:');
+
+		var results = response.results;
+		for (var i = 0; i < results.length; i++) {
+			log(results[i]);
+		}
+	});
+	callback();
 }
 
 getOrderExpandedWithCustomer = function() {
@@ -92,7 +102,27 @@ getOrderExpandedWithCustomer = function() {
 
 			log(orderID + ": " + name);
 		}
+
+		getOrderByEmployee();
 	});
+}
+
+getOrderByEmployee = function() {
+	enableJson();
+
+	var query = breeze.EntityQuery.from("Orders").orderBy("EmployeeID").take(5);
+	execute(query, function(response) {
+		log('\nOrders ordered by EmployeeID:');
+
+		var results = response.results;
+		for (var i = 0; i < results.length; i++) {
+			log(results[i]);
+		}
+	});
+}
+
+runDemo = function() {
+	getFirstFiveOrders(getOrderExpandedWithCustomer);
 }
 
 /*
@@ -112,6 +142,7 @@ log("Service: " + manager.serviceName);
 // Need one query to get the metadata in xml format. Since the query is executed in xml we expect it to fail.
 // Then we change to JSON and re-execute the query and expect it to succeed.
 var query = breeze.EntityQuery.from("Orders").take(5);
-execute(query, gotFirstFiveOrders, getFirstFiveOrders);
-
-setTimeout(getOrderExpandedWithCustomer, 1000);
+execute(query, gotOrders, function() {
+	log("Got metadata.");
+	runDemo();
+});
