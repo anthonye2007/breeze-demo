@@ -15223,6 +15223,10 @@ breeze.SaveOptions= SaveOptions;
                     // OData can return data.__count as a string
                     inlineCount = parseInt(data.__count, 10);
                 }
+
+                if (!data.results && data.value) {
+                    data.results = data.value;
+                }
                 return deferred.resolve({ results: data.results, inlineCount: inlineCount });
             },
             function (error) {
