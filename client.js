@@ -4,20 +4,16 @@
  * Anthony Elliott: anthonye2007@gmail.com
  */
 
-const protocol = "http://";
-const serviceHost = 'services.odata.org';
-const root = '/V4/Northwind/Northwind.svc';
-const serviceRoot = protocol + serviceHost + root;
-const extendedRoot = root + '/';
+const odataVersion = 4;
+const serviceRoot = "http://services.odata.org/V" + odataVersion + "/Northwind/Northwind.svc";
 
 /*
  ***** Helpers *****
  */
 
 configuration = function() {
-  OData.defaultHttpClient.enableJsonpCallback = true;
-  OData.defaultError = error;
-  OData.defaultSuccess = success;
+  disableJson();
+	breeze.config.initializeAdapterInstance('dataService', 'odata', true);
 }
 
 log = function(msg, numNewLines) {
@@ -70,7 +66,11 @@ gotFirstFiveOrders = function(response) {
 	}
 }
 
-getOrders = function() {
+/*
+ ***** API *****
+ */
+
+getFirstFiveOrders = function() {
 	enableJson();
 
 	var query = breeze.EntityQuery.from("Orders").take(5);
@@ -81,18 +81,15 @@ getOrders = function() {
  ***** Runner *****
  */
 log("Starting", 1);
-
-disableJson();
-breeze.config.initializeAdapterInstance('dataService', 'odata', true);
+configuration();
 
 var ds = new breeze.DataService({
   serviceName: serviceRoot, // the URL endpoint
-  hasServerMetadata: true,
-  useJsonp: true           
+  hasServerMetadata: true
 });
  
 var manager = new breeze.EntityManager({dataService: ds});
 log("Service: " + manager.serviceName);
 
 var query = breeze.EntityQuery.from("Orders").take(5);
-execute(query, gotFirstFiveOrders, getOrders);
+execute(query, gotFirstFiveOrders, getFirstFiveOrders);
