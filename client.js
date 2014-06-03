@@ -42,16 +42,13 @@ error = function(error) {
   log(error);
 }
 
-execute = function(query) {
+execute = function(query, successCallback, errorCallback) {
   manager.executeQuery(query)
-	  .then(function(results) {
-	  	log('query was successful!');
-	  	log(results);
-	  })
-	  .catch(function(error) {
-	  	log('query error: ' + error.message);
-	  	log(error);
-	  });
+		.then(successCallback)
+		.catch(function(error) {
+			log('query error: ' + error.message);
+			errorCallback();
+		});
 }
 
 enableJson = function() {
@@ -64,39 +61,38 @@ disableJson = function() {
 	odataNet.defaultHttpClient.formatQueryString = "$format=xml";
 }
 
+gotFirstFiveOrders = function(response) {
+	log('\nFirst five Orders:');
+
+	var results = response.results;
+	for (var i = 0; i < results.length; i++) {
+		log(results[i].CustomerID);
+	}
+}
+
+getOrders = function() {
+	enableJson();
+
+	var query = breeze.EntityQuery.from("Orders").take(5);
+	execute(query, gotFirstFiveOrders);
+}
+
 /*
  ***** Runner *****
  */
 log("Starting", 1);
 
 disableJson();
-
 breeze.config.initializeAdapterInstance('dataService', 'odata', true);
-//breeze.config.initializeAdapterInstance('dataService', 'webApiOData', true);
 
 var ds = new breeze.DataService({
-  //serviceName: "http://localhost:55802/odata",
   serviceName: serviceRoot, // the URL endpoint
   hasServerMetadata: true,
-  useJsonp: true           // request data using the JSONP protocol
-  //,jsonResultsAdapter: jsonResultsAdapter
+  useJsonp: true           
 });
  
 var manager = new breeze.EntityManager({dataService: ds});
 log("Service: " + manager.serviceName);
 
-/*manager.fetchMetadata()
-  .then(function() {
-    var metadataStore = manager.metadataStore;
-    log('metadata success!')
-    log(metadataStore);
-  })
-  .fail(function(exception) {
-    log('metadata error: ' + exception.message);
-    log(exception);
-  });*/
-
-//enableJson();
-
 var query = breeze.EntityQuery.from("Orders").take(5);
-execute(query);
+execute(query, gotFirstFiveOrders, getOrders);
