@@ -6208,7 +6208,10 @@ var MetadataStore = (function () {
         this._deferredTypes = {};
         var json = (typeof (exportedMetadata) === "string") ? JSON.parse(exportedMetadata) : exportedMetadata;
 
-        // remove weird schema from Northwind
+        // The Northwind sample includes two schemas
+        // The first one has all the EntitySets and Entities and the second model just has an EntityContainer
+        // The two models have different namespaces and messed up my processing in the client
+        // Thus I just removed the second schema before returning the data to the client and it works fine
         if (json.schema) {
             if (json.schema.length > 1) {
                 json.schema.pop();
@@ -15224,6 +15227,9 @@ breeze.SaveOptions= SaveOptions;
                     inlineCount = parseInt(data.__count, 10);
                 }
 
+                // OData 2.0 returned the important stuff in data.results
+                // OData 4.0 returns it in data.value instead
+                // I'm not sure if OData 4 *always* uses data.value so just support both
                 if (!data.results && data.value) {
                     data.results = data.value;
                 }

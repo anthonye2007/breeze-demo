@@ -8821,9 +8821,11 @@ var writeHtmlToIFrame = function (iframe, html) {
 exports.defaultHttpClient = {
     callbackParameterName: "$callback",
 
+    // The initial call to $metadata needs to be in xml
+    // We manually switch to json after successfully getting the metadata back
     formatQueryString: "$format=xml",
 
-    enableJsonpCallback: false, // this was initially false
+    enableJsonpCallback: false,
 
     request: function (request, success, error) {
         /// <summary>Performs a network request.</summary>
@@ -8886,11 +8888,17 @@ exports.defaultHttpClient = {
                 readResponseHeaders(xhr, headers);
 
                 if (statusCode === 0) {
+                    // If the cross-origin server does not support CORS then the preflight OPTIONS request will fail.
+                    // Typically it fails due to a 501 Not Implemented and so we change that here.
                     statusCode = 501;
+
+                    // Because the OPTIONS was not successful the original GET request will not be sent.
+                    // Thus we need to manually launch the GET request.
                     console.log("HTTP CORS OPTIONS not implemented, continuing with GET");
 
+                    // TODO replace URL with your own.
                     xhr.open("GET", "http://services.odata.org/V4/Northwind/Northwind.svc/$metadata", false);
-                    xhr.send(); // trying to get around the OPTIONS preflight from CORS
+                    xhr.send();
 
                     return;
                 }
@@ -8906,7 +8914,6 @@ exports.defaultHttpClient = {
                 }
             };
 
-            //xhr.open("GET", "http://services.odata.org/V4/Northwind/Northwind.svc/$metadata", false);
             xhr.open(request.method || "GET", url, true, request.user, request.password);
 
             // Set the name/value pairs.
@@ -8950,7 +8957,6 @@ exports.defaultHttpClient = {
 
                     var headers;
                     if (!formatQueryString || formatQueryString == "$format=json") {
-                        //headers = { "Content-Type": "application/json;odata.metadata=minimal", "OData-Version": "4.0" };
                         headers = { "Content-Type": "application/json;odata.metadata=minimal", "OData-Version": "4.0" };
                     } else {
                         // the formatQueryString should be in the format of "$format=xxx", xxx should be one of the application/json;odata.metadata=minimal(none or full)
