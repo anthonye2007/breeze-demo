@@ -90,7 +90,11 @@ getFirstFiveOrders = function(callback) {
 getOrderExpandedWithCustomer = function() {
 	enableJson();
 
-	var query = breeze.EntityQuery.from("Orders").take(1).expand("Customer");
+	var query = breeze.EntityQuery
+		.from("Orders")
+		.take(1)
+		.expand("Customer");
+		
 	execute(query, function(response) {
 		log('\nOrder with Customer:');
 
@@ -100,8 +104,10 @@ getOrderExpandedWithCustomer = function() {
 			var orderID = result.OrderID;
 			var name = result.Customer.ContactName;
 
-			log(orderID + ": " + name);
+			log(result);
 		}
+
+// datetime
 
 		getOrderByEmployee();
 	});
@@ -110,7 +116,11 @@ getOrderExpandedWithCustomer = function() {
 getOrderByEmployee = function() {
 	enableJson();
 
-	var query = breeze.EntityQuery.from("Orders").orderBy("EmployeeID").take(5);
+	var query = breeze.EntityQuery
+		.from("Orders")
+		.orderBy("EmployeeID")
+		.take(5);
+
 	execute(query, function(response) {
 		log('\nOrders ordered by EmployeeID:');
 
@@ -119,6 +129,46 @@ getOrderByEmployee = function() {
 			log(results[i]);
 		}
 	});
+
+	onlyOrdersWithCountryNameStartsWith();
+}
+
+onlyOrdersWithCountryNameStartsWith = function() {
+	enableJson();
+
+	var query = breeze.EntityQuery
+		.from("Orders")
+		.where("ShipCountry", "startswith", "A")
+		.orderBy("ShipCountry");
+
+	execute(query, function(response) {
+		log('\nOrders where CountryName starts with "A":');
+
+		var results = response.results;
+		for (var i = 0; i < results.length; i++) {
+			log(results[i].ShipCountry);
+		}
+
+		onlyOrdersWithAustria();
+	});	
+}
+
+onlyOrdersWithAustria = function() {
+	enableJson();
+
+	var query = breeze.EntityQuery
+		.from("Orders")
+		.where("ShipCountry", "eq", "Austria")
+		.orderBy("ShipCountry");
+
+	execute(query, function(response) {
+		log('\nOrders where CountryName equals "Austria":');
+
+		var results = response.results;
+		for (var i = 0; i < results.length; i++) {
+			log(results[i].ShipCountry);
+		}
+	});	
 }
 
 runDemo = function() {
