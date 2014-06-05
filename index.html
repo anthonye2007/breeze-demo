@@ -2,15 +2,23 @@
 <html>
 <head>
 <meta charset=utf-8 />
-<title></title>
+<title>Breeze + OData 4</title>
+<!-- Load scripts in this order for dependencies -->
 <script type="text/javascript" src="jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="q.min.js"></script>  
 <script type="text/javascript" src="datajs-0.0.0.js"></script> 
-<!--<script type="text/javascript" src="datajs-1.1.2.js"></script> -->
 <script type="text/javascript" src="breeze.debug.js"></script>    
 </head>
 <body>
- <h1>This is a test of OData</h1>
+ <h1>Breeze.js and OData example</h1>
+ <p>This demo uses Breeze to connect to the sample Northwind OData version 4 <a href="">service</a></p>
+ <br>
+ <p>Some changes were made to Breeze to allow for CORS supprt.</p>
+ <p>Breeze relies on datajs. This demo uses a fork from the Apache Olingo datajs project to allow for OData 4 support</p>
+ <br>
+ <p>Open the developer console and look at the console to see the demo.</p>
+
+ <!-- Load this last -->
  <script type="text/javascript" src="client.js"></script>
 </body>
 </html>
