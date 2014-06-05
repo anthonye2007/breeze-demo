@@ -13,7 +13,7 @@ const serviceRoot = "http://services.odata.org/V" + odataVersion + "/Northwind/N
 
 configuration = function() {
   disableJson();
-	breeze.config.initializeAdapterInstance('dataService', 'odata', true);
+  breeze.config.initializeAdapterInstance('dataService', 'odata', true);
 }
 
 log = function(msg, numNewLines) {
@@ -25,7 +25,7 @@ log = function(msg, numNewLines) {
 }
 
 newline = function() {
-	console.log('');
+  console.log('');
 }
 
 success = function(response) {
@@ -106,8 +106,6 @@ getOrderExpandedWithCustomer = function() {
 
 			log(result);
 		}
-
-// datetime
 
 		getOrderByEmployee();
 	});
